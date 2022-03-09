@@ -16,20 +16,6 @@ $ npm install nunjucks-encore
 ### How to use it?
 
 ```js
-const encoreExtension = require("nunjucks-encore");
-
-env.addExtension(
-  'encore-extension',
-  new EncoreExtension({
-    entrypointsFilename: 'path/to/entrypoints.json',
-    manifestFilename: 'path/to/manifest.json',
-  }),
-);
-```
-
-or
-
-```js
 import { EncoreExtension } from 'nunjucks-encore';
 
 env.addExtension(
