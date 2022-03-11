@@ -64,8 +64,11 @@ export class EncoreExtension implements Extension {
     const cssFiles = [];
 
     args.forEach((entryName) => {
-      if (entrypoints[entryName] && entrypoints[entryName].css) {
-        entrypoints[entryName].css.forEach((cssFile) => {
+      if (
+        entrypoints['entrypoints'][entryName] &&
+        entrypoints['entrypoints'][entryName].css
+      ) {
+        entrypoints['entrypoints'][entryName].css.forEach((cssFile) => {
           cssFiles.push(cssFile);
         });
       }
@@ -74,7 +77,11 @@ export class EncoreExtension implements Extension {
     let result = '';
 
     this.getUniqueFiles(cssFiles).forEach((cssFile) => {
-      result += `<link rel="stylesheet" href="${cssFile}">\n`;
+      const integrity =
+        entrypoints['integrity'] && entrypoints['integrity'][cssFile]
+          ? ` integrity="${entrypoints['integrity'][cssFile]}"`
+          : '';
+      result += `<link rel="stylesheet" href="${cssFile}"${integrity}>\n`;
     });
 
     return new SafeString(result);
@@ -97,8 +104,8 @@ export class EncoreExtension implements Extension {
     const scriptFiles = [];
 
     args.forEach((entryName) => {
-      if (entrypoints[entryName] && entrypoints[entryName].js) {
-        entrypoints[entryName].js.forEach((scriptFile) => {
+      if (entrypoints['entrypoints'][entryName] && entrypoints['entrypoints'][entryName].js) {
+        entrypoints['entrypoints'][entryName].js.forEach((scriptFile) => {
           scriptFiles.push(scriptFile);
         });
       }
@@ -107,7 +114,11 @@ export class EncoreExtension implements Extension {
     let result = '';
 
     this.getUniqueFiles(scriptFiles).forEach((scriptFile) => {
-      result += `<script src="${scriptFile}"></script>\n`;
+      const integrity =
+        entrypoints['integrity'] && entrypoints['integrity'][scriptFile]
+          ? ` integrity="${entrypoints['integrity'][scriptFile]}"`
+          : '';
+      result += `<script src="${scriptFile}"${integrity}></script>\n`;
     });
 
     return new SafeString(result);
@@ -146,7 +157,7 @@ export class EncoreExtension implements Extension {
     try {
       this.entrypointsCache = JSON.parse(
         fs.readFileSync(this.options.entrypointsFilename, 'utf8'),
-      ).entrypoints;
+      );
     } catch {}
 
     return this.entrypointsCache;

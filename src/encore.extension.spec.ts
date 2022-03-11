@@ -20,6 +20,7 @@ jest.mock(`fs`, () => {
 
 describe('EncoreExtension', () => {
   let extension: EncoreExtension = null;
+  let extensionIntegrity: EncoreExtension = null;
 
   /**
    * SetUp test environment.
@@ -27,6 +28,11 @@ describe('EncoreExtension', () => {
   beforeEach(() => {
     extension = new EncoreExtension({
       entrypointsFilename: '/vfs/entrypoints.json',
+      manifestFilename: '/vfs/manifest.json',
+    });
+
+    extensionIntegrity = new EncoreExtension({
+      entrypointsFilename: '/vfsIntegrity/entrypoints.json',
       manifestFilename: '/vfs/manifest.json',
     });
 
@@ -52,8 +58,38 @@ describe('EncoreExtension', () => {
       '/vfs',
     );
 
+    // Setup virtual filesystem for entrypoints with integrity hashes for tests
+    const vfsIntegrity = Volume.fromJSON(
+      {
+        'entrypoints.json': JSON.stringify({
+          entrypoints: {
+            entry1: {
+              js: ['/file2.js', '/file1.js'],
+              css: ['file2.css', 'file1.css'],
+            },
+            entry2: {
+              js: ['/file4.js', '/file3.js'],
+              css: ['file4.css', 'file3.css'],
+            },
+          },
+          integrity: {
+            '/file2.js': 'sha384-002',
+            '/file1.js': 'sha384-001',
+            'file2.css': 'sha384-004',
+            'file1.css': 'sha384-003',
+            '/file4.js': 'sha384-006',
+            '/file3.js': 'sha384-005',
+            'file4.css': 'sha384-008',
+            'file3.css': 'sha384-007',
+          },
+        }),
+      },
+      '/vfsIntegrity',
+    );
+
     const fsMock: any = fs;
     fsMock.use(vfs);
+    fsMock.use(vfsIntegrity);
   });
 
   /**
@@ -130,6 +166,31 @@ describe('EncoreExtension', () => {
   });
 
   /**
+   * Test for encore_link_tags extension with integrity hashes.
+   */
+  it('outputs correct link tags with integrity hashes', () => {
+    expect(extensionIntegrity.encore_entry_link_tags({}, 'entry1', 'entry2')).toEqual({
+      length: 256,
+      val:
+        '<link rel="stylesheet" href="file1.css" integrity="sha384-003">\n' +
+        '<link rel="stylesheet" href="file2.css" integrity="sha384-004">\n' +
+        '<link rel="stylesheet" href="file3.css" integrity="sha384-007">\n' +
+        '<link rel="stylesheet" href="file4.css" integrity="sha384-008">\n',
+    });
+
+    // now get data from cache
+    (fs as any).reset();
+    expect(extensionIntegrity.encore_entry_link_tags({}, 'entry1', 'entry2')).toEqual({
+      length: 256,
+      val:
+        '<link rel="stylesheet" href="file1.css" integrity="sha384-003">\n' +
+        '<link rel="stylesheet" href="file2.css" integrity="sha384-004">\n' +
+        '<link rel="stylesheet" href="file3.css" integrity="sha384-007">\n' +
+        '<link rel="stylesheet" href="file4.css" integrity="sha384-008">\n',
+    });
+  });
+
+  /**
    * Test for encore_link_tags extension with missing arguments.
    */
   it('cannot outputs correct link tags due to missing arguments', () => {
@@ -161,6 +222,31 @@ describe('EncoreExtension', () => {
         '<script src="/file2.js"></script>\n' +
         '<script src="/file3.js"></script>\n' +
         '<script src="/file4.js"></script>\n',
+    });
+  });
+
+  /**
+   * Test for encore_script_tags extension with integrity hashes.
+   */
+  it('outputs correct script tags with integrity hashes', () => {
+    expect(extensionIntegrity.encore_entry_script_tags({}, 'entry1', 'entry2')).toEqual({
+      length: 228,
+      val:
+        '<script src="/file1.js" integrity="sha384-001"></script>\n' +
+        '<script src="/file2.js" integrity="sha384-002"></script>\n' +
+        '<script src="/file3.js" integrity="sha384-005"></script>\n' +
+        '<script src="/file4.js" integrity="sha384-006"></script>\n',
+    });
+
+    // now get data from cache
+    (fs as any).reset();
+    expect(extensionIntegrity.encore_entry_script_tags({}, 'entry1', 'entry2')).toEqual({
+      length: 228,
+      val:
+        '<script src="/file1.js" integrity="sha384-001"></script>\n' +
+        '<script src="/file2.js" integrity="sha384-002"></script>\n' +
+        '<script src="/file3.js" integrity="sha384-005"></script>\n' +
+        '<script src="/file4.js" integrity="sha384-006"></script>\n',
     });
   });
 
