@@ -104,7 +104,10 @@ export class EncoreExtension implements Extension {
     const scriptFiles = [];
 
     args.forEach((entryName) => {
-      if (entrypoints['entrypoints'][entryName] && entrypoints['entrypoints'][entryName].js) {
+      if (
+        entrypoints['entrypoints'][entryName] &&
+        entrypoints['entrypoints'][entryName].js
+      ) {
         entrypoints['entrypoints'][entryName].js.forEach((scriptFile) => {
           scriptFiles.push(scriptFile);
         });

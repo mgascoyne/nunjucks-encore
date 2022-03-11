@@ -169,7 +169,9 @@ describe('EncoreExtension', () => {
    * Test for encore_link_tags extension with integrity hashes.
    */
   it('outputs correct link tags with integrity hashes', () => {
-    expect(extensionIntegrity.encore_entry_link_tags({}, 'entry1', 'entry2')).toEqual({
+    expect(
+      extensionIntegrity.encore_entry_link_tags({}, 'entry1', 'entry2'),
+    ).toEqual({
       length: 256,
       val:
         '<link rel="stylesheet" href="file1.css" integrity="sha384-003">\n' +
@@ -180,7 +182,9 @@ describe('EncoreExtension', () => {
 
     // now get data from cache
     (fs as any).reset();
-    expect(extensionIntegrity.encore_entry_link_tags({}, 'entry1', 'entry2')).toEqual({
+    expect(
+      extensionIntegrity.encore_entry_link_tags({}, 'entry1', 'entry2'),
+    ).toEqual({
       length: 256,
       val:
         '<link rel="stylesheet" href="file1.css" integrity="sha384-003">\n' +
@@ -229,7 +233,9 @@ describe('EncoreExtension', () => {
    * Test for encore_script_tags extension with integrity hashes.
    */
   it('outputs correct script tags with integrity hashes', () => {
-    expect(extensionIntegrity.encore_entry_script_tags({}, 'entry1', 'entry2')).toEqual({
+    expect(
+      extensionIntegrity.encore_entry_script_tags({}, 'entry1', 'entry2'),
+    ).toEqual({
       length: 228,
       val:
         '<script src="/file1.js" integrity="sha384-001"></script>\n' +
@@ -240,7 +246,9 @@ describe('EncoreExtension', () => {
 
     // now get data from cache
     (fs as any).reset();
-    expect(extensionIntegrity.encore_entry_script_tags({}, 'entry1', 'entry2')).toEqual({
+    expect(
+      extensionIntegrity.encore_entry_script_tags({}, 'entry1', 'entry2'),
+    ).toEqual({
       length: 228,
       val:
         '<script src="/file1.js" integrity="sha384-001"></script>\n' +
